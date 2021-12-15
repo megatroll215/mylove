@@ -1,0 +1,66 @@
+
+<div class = "map-body">
+  <!-- Search -->
+  <div class = "search-body">
+    <span class="p-input-icon-left">
+      <i class="pi pi-search"></i>
+      <input type="text" pInputText [(ngModel)]="searchBody" 
+            (keydown.enter)="$event.preventDefault()" 
+            placeholder="Search"
+            style="width: 100%; font-size: medium;"
+            autocorrect="off" autocapitalize="off" spellcheck="off" 
+            #search>         
+    </span>
+  </div> 
+<br>
+
+<p-gmap #gmap (onMapReady) = "setMap($event)"
+          [options]="options" 
+          [overlays]="overlays" 
+          [style]="{'width':'100%','height':'400px'}">
+</p-gmap>
+</div>
+<br>
+
+
+<h3>Location Data</h3>
+<p-table [value]="listlocation" responsiveLayout="scroll">
+  <ng-template pTemplate="header">
+      <tr>
+        <th>Concave Type</th>
+        <th>Concave Code</th>
+        <th>Source</th>
+        <th>Address</th>
+        <th>Lat</th>
+        <th>Lng</th>
+        <th>Radius</th>
+        <th>Area Name</th>
+        <th>Province Name</th>
+        <th>District Name</th>
+        <th>Village Name</th>
+        <th>Rural Name</th>
+        <th>Location Name</th>
+      </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-dataLocation>
+      <tr>
+        <td>{{ dataLocation.concaveType }}</td>
+        <td>{{ dataLocation.concaveCode }}</td>
+        <td>{{ dataLocation.source }}</td>
+        <td>{{ dataLocation.address }}</td>
+        <td>{{ dataLocation.lat }}</td>
+        <td>{{ dataLocation.lng }}</td>
+        <td>{{ dataLocation.radius }}</td>
+        <td>{{ dataLocation.areaName }}</td>
+        <td>{{ dataLocation.provinceName }}</td>
+        <td>{{ dataLocation.districtName }}</td>
+        <td>{{ dataLocation.villageName }}</td>
+        <td>{{ dataLocation.ruralName }}</td>
+        <td>{{ dataLocation.locationName }}</td>
+      </tr>
+  </ng-template>
+</p-table>
+
+
+
+
