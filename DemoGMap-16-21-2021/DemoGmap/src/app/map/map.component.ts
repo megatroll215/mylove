@@ -8,9 +8,7 @@ import { Loader } from "@googlemaps/js-api-loader"
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit {
-  constructor() {
 
-  }
 
 
 
@@ -37,17 +35,14 @@ const Hanoi : any = {
     };
     let map : any;
     loader.load().then(() => new google.maps.Map(document.getElementById("map") as HTMLElement,mapOptions));
-    map = new google.maps.Map(document.getElementById("map") as HTMLElement,mapOptions)
 
 
 
-     new google.maps.Marker({
-      position:  {
-        lat: 21.4414644,
-        lng: 107.5290764
-      },
-      map,
-      title: "Hello Hanoi!",
+
+    const maker =  new google.maps.Marker({
+      position:  Hanoi,
+      map:new google.maps.Map(document.getElementById("map") as HTMLElement,mapOptions),
+      icon:"https://www.pngkit.com/png/detail/14-142949_map-marker-icons-png-map-marker-icon-png.png"
     });
 
 
@@ -55,7 +50,7 @@ const Hanoi : any = {
       { lat: 25.774, lng: -80.19 },
       { lat: 18.466, lng: -66.118 },
       { lat: 32.321, lng: -64.757 },
-      
+
     ];
 
     // Construct the polygon.
@@ -69,6 +64,23 @@ const Hanoi : any = {
     });
 
     bermudaTriangle.setMap(map);
+    const lineSymbol = {
+      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+    };
+
+    const line = new google.maps.Polyline({
+      path: [
+        { lat: 22.291, lng: 153.027 },
+        { lat: 18.291, lng: 153.027 },
+      ],
+      icons: [
+        {
+          icon: lineSymbol,
+          offset: "100%",
+        },
+      ],
+      map: map,
+    });
 
   }
 
