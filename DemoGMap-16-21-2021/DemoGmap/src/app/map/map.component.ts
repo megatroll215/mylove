@@ -39,7 +39,7 @@ export class MapComponent implements OnInit {
       document.getElementById('map') as HTMLElement,
       mapOptions
     );
-     
+
 //end zone 3
     // Create a <script> tag and set the USGS URL as the source.
 
