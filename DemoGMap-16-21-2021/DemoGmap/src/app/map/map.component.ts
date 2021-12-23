@@ -2,6 +2,7 @@ import {Component, forwardRef, OnInit} from '@angular/core';
 import { Loader } from '@googlemaps/js-api-loader';
 import {default as data} from 'data.json';
 import {map} from "rxjs";
+import {toNumbers} from "@angular/compiler-cli/src/version_helpers";
 
 export interface  Array{
   poly: any[]
@@ -105,7 +106,10 @@ console.log(document.getElementById("map"))
       const location = new google.maps.LatLng(center.lat, center.lng);
 
 
-      const info = new google.maps.InfoWindow({
+
+
+
+        const info = new google.maps.InfoWindow({
         content: "<p>Layer :&nbsp " + data.zone[i].layer + "</p>"
           + "<p>BinCount: " + data.zone[i].binCount + "</p>"
           + "<p>MtdCount:" + data.zone[i].mtdCount + "</p>"
