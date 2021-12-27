@@ -5,15 +5,14 @@
   <button translate="ZONE-INFO.layer" id="layer3_show" style="background-color:   #0040ff; border: none"><span>3</span></button>
   <button translate="ZONE-INFO.All" id="All_layer_show" style="border: none" ></button>
   <button translate="ZONE-INFO.Hide" id="All_layer_hidden" style="border: none" ></button>
+
    <div style="float: right"><select id="selectLang" style="float: right" #selLang (change)="TranslateTo(selLang.value)">
-  <option *ngFor="let language of this.translate.getLangs()" [value]="language">{{ language=="vie"?"Vietnamese":"English"}}</option>
+  <option disabled selected >choose language </option>
+  <option *ngFor="let language of this.translate.getLangs()" [value]="language">{{ language=="en"?"English":"Vietnamese"}}</option>
 
 </select>
   <label style=" color: Blue" for="selectLang"><b translate="ZONE-INFO.language"></b></label>
    </div>
 </div>
-<div>
-  <p id = "layer"><b style="color:Blue" translate="ZONE-INFO.info-Window-detail"></b>:           <b translate="ZONE-INFO.layer"></b> - <b translate="ZONE-INFO.BIN-COUNT"></b> - <b translate="ZONE-INFO.MTD-COUNT"></b> - <b translate="ZONE-INFO.POPULATION"></b></p>
 
-</div>
 

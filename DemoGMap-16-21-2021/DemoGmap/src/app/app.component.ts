@@ -11,8 +11,7 @@ import {TranslateService} from "@ngx-translate/core";
 })
 export class AppComponent {
   title = 'DemoGmap';
-  constructor(public translate: TranslateService) {
-    translate.addLangs(['vie', 'en'])
-    translate.setDefaultLang('vie');
-  }
+
+
+
 }

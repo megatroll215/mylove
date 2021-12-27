@@ -1,4 +1,4 @@
-import {Component, forwardRef, OnInit} from '@angular/core';
+import {Component, forwardRef, Input, OnInit} from '@angular/core';
 import {Loader} from '@googlemaps/js-api-loader';
 import {default as data} from 'data.json';
 import {map} from "rxjs";
@@ -10,6 +10,7 @@ import {equals} from "@ngx-translate/core/lib/util";
 export interface Array {
   poly: any[]
 }
+
 
 
 export interface Area {
@@ -30,7 +31,6 @@ export class Poly implements Area {
 
 }
 
-
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -38,28 +38,51 @@ export class Poly implements Area {
 })
 export class MapComponent implements OnInit, Array {
 
+
+
   poly: any[] = [];
+  info: any
 
   map: any
 
-
+node: any
   Hanoi: any = {
     lat: 21.028033,
     lng: 105.851242,
   };
 
 
-  displayInfo(info: google.maps.InfoWindow): void {
-    info.open();
-  }
+
+
+
 
   constructor(public translate: TranslateService) {
-    // translate.addLangs(['vie', 'en'])
-    // translate.setDefaultLang('vie');
+    translate.addLangs(['vie', 'en'])
+    translate.setDefaultLang('en');
   }
 
-  TranslateTo(lang: string) {
+ async TranslateTool(input: string){
+
+   await this.translate.get('a').toPromise().then();
+   return this.translate.instant(input)
+
+
+
+}
+
+
+
+
+  async TranslateTo(lang: string) {
     this.translate.use(lang)
+
+
+
+
+
+
+
+
   }
 
   ColorIntensive(population: any, layer: number): string {
@@ -100,12 +123,10 @@ export class MapComponent implements OnInit, Array {
     return "  #ffcccc\n";
   }
 
-  TranslateToLang(lang: string) {
-    this.translate.use(lang)
-  }
 
 
-  ngOnInit(): void {
+
+  async ngOnInit() {
 
 
     this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
@@ -114,8 +135,7 @@ export class MapComponent implements OnInit, Array {
 
     });
     ;
-//end zone 3
-    // Create a <script> tag and set the USGS URL as the source.
+
 
 
     for (let i = 0; i < data.zone.length; i++) {
@@ -129,17 +149,14 @@ export class MapComponent implements OnInit, Array {
         if (pop !== null) {
           pop = Math.round(pop);
         }
-        console.log('AAAA'+ this.translate.instant('a') );
-        const info = new google.maps.InfoWindow({
-          content:
-            "<b > " + this.translate.instant('a') + ": " + data.zone[i].layer + "</b>"
-            + "<b>   - " + data.zone[i].binCount + "</b>"
-            + "<b>   - " + data.zone[i].mtdCount + "</b>"
-            + "<b>   - " + pop + "</b>",
 
 
-          position: center
-        })
+
+
+
+
+
+
 
 
         let hexagons = data.zone[i].hexagon;
@@ -158,13 +175,35 @@ export class MapComponent implements OnInit, Array {
 
         });
 
+        let tempContent = "<b>"+ await this.TranslateTool("ZONE-INFO.layer") + "</b>"+ " : " +"<span>"+ data.zone[i].layer + "</span>"+"</br>"+
+          "<b>"+ await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].binCount + "</span>"+"</br>"+
+          "<b>"+ await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].mtdCount + "</span>"+"</br>"+
+          "<b>"+ await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>"+ " : " + "<span>"+ pop + "</span>"
+
+        const info = new google.maps.InfoWindow({
+          content:
+           tempContent,
+          position: center
+
+        })
+
+        google.maps.event.addDomListener(document.getElementById("selectLang") as HTMLElement, "change",async () => {
+          info.setContent("<b>"+ await this.TranslateTool("ZONE-INFO.layer") + "</b>"+ " : " +"<span>"+ data.zone[i].layer + "</span>"+"</br>"+
+            "<b>"+ await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].binCount + "</span>"+"</br>"+
+            "<b>"+ await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].mtdCount + "</span>"+"</br>"+
+            "<b>"+ await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>"+ " : " + "<span>"+ pop + "</span>")
+          console.log(info.getContent())
+        })
 
         google.maps.event.addListener(zone_area, "click", () => {
           info.open(this.map);
         });
 
+
         zone_area.setMap(this.map);
         this.poly.push(new Poly(data.zone[i].layer, zone_area));
+
+
 
 
         google.maps.event.addDomListener(document.getElementById("layer1_show") as HTMLElement, "click", () => {
@@ -230,7 +269,5 @@ export class MapComponent implements OnInit, Array {
 
 }
 
-// Loop through the results array and place a marker for each
-// set of coordinates.
 
 

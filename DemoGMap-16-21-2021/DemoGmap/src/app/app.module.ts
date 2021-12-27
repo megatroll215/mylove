@@ -1,16 +1,29 @@
-import { NgModule } from '@angular/core';
+import {Injectable, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
-import {TranslateLoader,TranslateModule} from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HttpClient,HttpClientModule} from '@angular/common/http'
+import {Resolve} from "@angular/router";
+import {Observable} from "rxjs";
 
 
 export function  httpTranslateLoaderFactory(http: HttpClient){
-  return new TranslateHttpLoader(http);
+  return new TranslateHttpLoader(http,'./assets/i18n/','.json');
+}
+
+@Injectable({ providedIn: 'root' })
+export class TranslationResolverService implements Resolve<any> {
+  constructor(private translateService: TranslateService) {}
+
+  resolve(): Observable<any> {
+    return this.translateService.getTranslation(
+      this.translateService.currentLang
+    );
+  }
 }
 @NgModule({
   declarations: [
@@ -33,5 +46,6 @@ export function  httpTranslateLoaderFactory(http: HttpClient){
   ],
   providers: [],
   bootstrap: [AppComponent]
+
 })
 export class AppModule { }
