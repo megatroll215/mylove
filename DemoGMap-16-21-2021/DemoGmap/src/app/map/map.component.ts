@@ -1,16 +1,15 @@
-import {Component, forwardRef, Input, OnInit} from '@angular/core';
-import {Loader} from '@googlemaps/js-api-loader';
+import {Component, OnInit} from '@angular/core';
 import {default as data} from 'data.json';
-import {map} from "rxjs";
-import {toNumbers} from "@angular/compiler-cli/src/version_helpers";
 import {TranslateService} from "@ngx-translate/core";
+
+import GeocoderStatus = google.maps.GeocoderStatus;
+import {delay} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {equals} from "@ngx-translate/core/lib/util";
+
 
 export interface Array {
   poly: any[]
 }
-
 
 
 export interface Area {
@@ -39,48 +38,80 @@ export class Poly implements Area {
 export class MapComponent implements OnInit, Array {
 
 
-
+  tempContent: any
   poly: any[] = [];
   info: any
-
+  locationDetail: string | any = ""
   map: any
 
-node: any
+  node: any
   Hanoi: any = {
     lat: 21.028033,
     lng: 105.851242,
   };
 
+//test
+
+
+//end: test
+//get GeoCoder
+  GetGeoCoder(location: google.maps.LatLng) {
+
+    let geocoder = new google.maps.Geocoder();
+
+    /* geocoder.geocode({location: location}).then((response)=>{
+     // @ts-ignore
+       if(response.results[0] )
+     {
+       detail =  response.results[0].formatted_address.toString()
+       console.log("1 : " + response.results[0].formatted_address.toString())
+       return detail
+
+     }else return detail}
+
+    )*/
+
+    geocoder.geocode({'location': location}, (results, status) => {
+      if (status == 'OK') {
+        if (results) {
+
+          this.locationDetail += results[0].formatted_address.toString()
+          console.log(this.locationDetail)
 
 
 
+        }
+
+      } else {
+        alert('Geocode was not successful for the following reason: ' + status);
+      }
 
 
+    })
+
+  }
+
+
+  //end get geocoder
+//get location detail
+
+//end: get location detail
   constructor(public translate: TranslateService) {
     translate.addLangs(['vie', 'en'])
     translate.setDefaultLang('en');
   }
 
- async TranslateTool(input: string){
+  async TranslateTool(input: string) {
 
-   await this.translate.get('a').toPromise().then();
-   return this.translate.instant(input)
-
-
-
-}
+    await this.translate.get('a').toPromise().then();
+    return this.translate.instant(input)
 
 
+  }
 
 
   async TranslateTo(lang: string) {
     this.translate.use(lang)
-
-
-
-
-
-
 
 
   }
@@ -124,10 +155,8 @@ node: any
   }
 
 
-
-
   async ngOnInit() {
-
+    this.GetGeoCoder(this.Hanoi)
 
     this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
       zoom: 14,
@@ -137,12 +166,17 @@ node: any
     ;
 
 
+//test geodcode: begin
 
-    for (let i = 0; i < data.zone.length; i++) {
+
+//test geocode: end
+    for (let i = 0; i < 5; i++) {
+
+
       // @ts-ignore
-      if (data.zone[i].population >= 100 && data.zone[i].population != null) {
-        const center = data.zone[i].center;
-        const location = new google.maps.LatLng(center.lat, center.lng);
+      if (data.zone[i].population != null && data.zone[i].population >= 100) {
+        const center = data.zone[i].center as unknown as google.maps.LatLng;
+
 
 
         let pop = data.zone[i].population
@@ -151,16 +185,7 @@ node: any
         }
 
 
-
-
-
-
-
-
-
-
         let hexagons = data.zone[i].hexagon;
-        let zone_data: google.maps.LatLng[] | undefined;
 
 
         const zone_area = new google.maps.Polygon({
@@ -172,28 +197,33 @@ node: any
           fillOpacity: 0.5,
           visible: false,
 
-
         });
 
-        let tempContent = "<b>"+ await this.TranslateTool("ZONE-INFO.layer") + "</b>"+ " : " +"<span>"+ data.zone[i].layer + "</span>"+"</br>"+
-          "<b>"+ await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].binCount + "</span>"+"</br>"+
-          "<b>"+ await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].mtdCount + "</span>"+"</br>"+
-          "<b>"+ await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>"+ " : " + "<span>"+ pop + "</span>"
+
+
+
+        console.log(this.locationDetail)
+        this.tempContent = "<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
+          "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
+          "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
+          "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>"
+
 
         const info = new google.maps.InfoWindow({
           content:
-           tempContent,
+          this.tempContent,
           position: center
 
         })
 
-        google.maps.event.addDomListener(document.getElementById("selectLang") as HTMLElement, "change",async () => {
-          info.setContent("<b>"+ await this.TranslateTool("ZONE-INFO.layer") + "</b>"+ " : " +"<span>"+ data.zone[i].layer + "</span>"+"</br>"+
-            "<b>"+ await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].binCount + "</span>"+"</br>"+
-            "<b>"+ await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>"+ " : " + "<span>"+ data.zone[i].mtdCount + "</span>"+"</br>"+
-            "<b>"+ await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>"+ " : " + "<span>"+ pop + "</span>")
-          console.log(info.getContent())
+        google.maps.event.addDomListener(document.getElementById("selectLang") as HTMLElement, "change", async () => {
+          info.setContent("<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
+            "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
+            "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
+            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" )
+
         })
+
 
         google.maps.event.addListener(zone_area, "click", () => {
           info.open(this.map);
@@ -202,8 +232,6 @@ node: any
 
         zone_area.setMap(this.map);
         this.poly.push(new Poly(data.zone[i].layer, zone_area));
-
-
 
 
         google.maps.event.addDomListener(document.getElementById("layer1_show") as HTMLElement, "click", () => {
@@ -262,6 +290,9 @@ node: any
 
 
       }
+      //set detail to ""
+
+      //
     }
 
 
