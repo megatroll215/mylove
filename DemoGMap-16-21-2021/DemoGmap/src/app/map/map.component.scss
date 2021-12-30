@@ -1,7 +1,10 @@
 
 .my-map{
-  width: 100vw;
-  height: 100vh;
+  width: 1350px;
+  height: 600px;
+  border: 1px;
+  border-radius: 15px;
+  margin: auto;
 }
 b{
   font-family: Calibri;
@@ -9,7 +12,8 @@ b{
   color: #e60000;
 }
 button{
-  width: 100px;
+  width: 130px;
   border: 1px transparent;
   margin: 2px;
 }
+

@@ -2,9 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {default as data} from 'data.json';
 import {TranslateService} from "@ngx-translate/core";
 
-import GeocoderStatus = google.maps.GeocoderStatus;
-import {delay} from "rxjs";
+import {LocationService} from '../service/getReverseGeocodingservice'
 import {HttpClient} from "@angular/common/http";
+import axios from "axios";
+import ScaleControlStyle = google.maps.ScaleControlStyle;
 
 
 export interface Array {
@@ -36,8 +37,8 @@ export class Poly implements Area {
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements OnInit, Array {
-
-
+locationService: LocationService|any
+http: HttpClient | any
   tempContent: any
   poly: any[] = [];
   info: any
@@ -55,9 +56,11 @@ export class MapComponent implements OnInit, Array {
 
 //end: test
 //get GeoCoder
-  GetGeoCoder(location: google.maps.LatLng) {
 
-    let geocoder = new google.maps.Geocoder();
+
+
+
+/*    let geocoder = new google.maps.Geocoder();*/
 
     /* geocoder.geocode({location: location}).then((response)=>{
      // @ts-ignore
@@ -71,12 +74,11 @@ export class MapComponent implements OnInit, Array {
 
     )*/
 
-    geocoder.geocode({'location': location}, (results, status) => {
+    /*geocoder.geocode({'location': location}, (results, status) => {
       if (status == 'OK') {
         if (results) {
 
           this.locationDetail += results[0].formatted_address.toString()
-          console.log(this.locationDetail)
 
 
 
@@ -87,9 +89,16 @@ export class MapComponent implements OnInit, Array {
       }
 
 
-    })
+    }).then(() =>{
+      new google.maps.Marker({
+        position: location,
+        map: this.map,
+        title: this.locationDetail,
 
-  }
+      })
+    })
+*/
+
 
 
   //end get geocoder
@@ -115,7 +124,10 @@ export class MapComponent implements OnInit, Array {
 
 
   }
+  async  CreateElement(elem: string){
 
+
+  }
   ColorIntensive(population: any, layer: number): string {
     switch (layer) {
       case 1:
@@ -156,26 +168,143 @@ export class MapComponent implements OnInit, Array {
 
 
   async ngOnInit() {
-    this.GetGeoCoder(this.Hanoi)
 
     this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
       zoom: 14,
       center: this.Hanoi,
+      zoomControl: true,
+      mapTypeControl: true,
+      mapTypeControlOptions:{
+        mapTypeIds:["roadmap", "satellite", "hybrid", "terrain","dark-mode"],
+       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+        position: google.maps.ControlPosition.LEFT_TOP
+
+      },
+      rotateControl: true,
+      scaleControlOptions:{
+        style: ScaleControlStyle.DEFAULT
+      },
+
+
+
+
+
+
 
     });
     ;
+    //Dark-Mode styled
+    const darkMode = new google.maps.StyledMapType( [
+      { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+      {
+        featureType: "administrative.locality",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d59563" }],
+      },
+      {
+        featureType: "poi",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d59563" }],
+      },
+      {
+        featureType: "poi.park",
+        elementType: "geometry",
+        stylers: [{ color: "#263c3f" }],
+      },
+      {
+        featureType: "poi.park",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#6b9a76" }],
+      },
+      {
+        featureType: "road",
+        elementType: "geometry",
+        stylers: [{ color: "#38414e" }],
+      },
+      {
+        featureType: "road",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#212a37" }],
+      },
+      {
+        featureType: "road",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#9ca5b3" }],
+      },
+      {
+        featureType: "road.highway",
+        elementType: "geometry",
+        stylers: [{ color: "#746855" }],
+      },
+      {
+        featureType: "road.highway",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#1f2835" }],
+      },
+      {
+        featureType: "road.highway",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#f3d19c" }],
+      },
+      {
+        featureType: "transit",
+        elementType: "geometry",
+        stylers: [{ color: "#2f3948" }],
+      },
+      {
+        featureType: "transit.station",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d59563" }],
+      },
+      {
+        featureType: "water",
+        elementType: "geometry",
+        stylers: [{ color: "#17263c" }],
+      },
+      {
+        featureType: "water",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#515c6d" }],
+      },
+      {
+        featureType: "water",
+        elementType: "labels.text.stroke",
+        stylers: [{ color: "#17263c" }],
+      },
+    ],{name:"Night Mode"})
+
+    this.map.mapTypes.set("dark-mode",darkMode)
+    this.map.setMapTypeId("dark-mode")
+    //end
+
 
 
 //test geodcode: begin
 
 
+
+
 //test geocode: end
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < data.zone.length; i++) {
 
 
-      // @ts-ignore
-      if (data.zone[i].population != null && data.zone[i].population >= 100) {
+
+      if (data.zone[i].population !== null && <number>data.zone[i].population>=100) {
         const center = data.zone[i].center as unknown as google.maps.LatLng;
+
+        let url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+center.lat.toString()+","+center.lng.toString()+"&key=AIzaSyA2zmfFiqBqvwBMOqEGlEzWqmSRAPaX3kM"
+
+        let res = await  axios.get(url)
+        this.locationDetail = res.data.results[0].formatted_address
+
+
+
+
+
+
+
 
 
 
@@ -202,11 +331,11 @@ export class MapComponent implements OnInit, Array {
 
 
 
-        console.log(this.locationDetail)
+
         this.tempContent = "<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
           "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
           "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
-          "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>"
+          "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" + this.locationDetail
 
 
         const info = new google.maps.InfoWindow({
@@ -220,7 +349,7 @@ export class MapComponent implements OnInit, Array {
           info.setContent("<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
-            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" )
+            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>"+ this.locationDetail )
 
         })
 
@@ -289,11 +418,26 @@ export class MapComponent implements OnInit, Array {
         })
 
 
+
+
       }
       //set detail to ""
+      this.locationDetail = ""
 
       //
     }
+    //create Center-button
+    google.maps.event.addDomListener(document.getElementById("center-button") as HTMLElement,"click", ()=>{
+      this.map.setCenter(this.Hanoi);
+      this.map.setZoom(14.5);
+    })
+    //
+
+    //find your location button
+
+    //end
+
+
 
 
   }
