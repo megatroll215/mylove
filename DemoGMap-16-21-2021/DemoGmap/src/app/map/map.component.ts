@@ -36,7 +36,10 @@ export class Poly implements Area {
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
+
+
 export class MapComponent implements OnInit, Array {
+
 locationService: LocationService|any
 http: HttpClient | any
   tempContent: any
@@ -192,7 +195,7 @@ http: HttpClient | any
 
 
     });
-    ;
+
     //Dark-Mode styled
     const darkMode = new google.maps.StyledMapType( [
       { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
@@ -281,12 +284,37 @@ http: HttpClient | any
 
 
 
-//test geodcode: begin
+//Legend
+    const LegendContainer = document.createElement("div") as HTMLElement
+    LegendContainer.id = "lecon"
+    LegendContainer.style.margin = "auto"
+    LegendContainer.style.backgroundColor = "transparent";
+    LegendContainer.style.border = "2px solid #fff";
+    LegendContainer.style.borderRadius = "3px";
+    LegendContainer.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+    LegendContainer.style.cursor = "pointer";
+
+    LegendContainer.style.textAlign = "center";
+    LegendContainer.title = "Population color";
+    const LegendHeader = document.createElement("p") as HTMLElement
+    LegendHeader.textContent = "Legend"
+    LegendHeader.style.fontWeight = "bold"
+    LegendHeader.style.backgroundColor= "transparent"
+    LegendHeader.style.color = "yellow"
+    LegendHeader.style.fontFamily ="Courier"
+    LegendContainer.appendChild(LegendHeader);
+    const hr =document.createElement("hr") as HTMLElement
+    hr.style.backgroundColor = "white"
+    LegendContainer.appendChild(hr);
+    const ref = document.createElement("div");
+    const redBox =document.createElement("input");
+
+    (document.getElementById("holder") as HTMLElement).append(LegendContainer)
 
 
 
 
-//test geocode: end
+//end
     for (let i = 0; i < data.zone.length; i++) {
 
 
@@ -294,12 +322,10 @@ http: HttpClient | any
       if (data.zone[i].population !== null && <number>data.zone[i].population>=100) {
         const center = data.zone[i].center as unknown as google.maps.LatLng;
 
-        let url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+center.lat.toString()+","+center.lng.toString()+"&key=AIzaSyA2zmfFiqBqvwBMOqEGlEzWqmSRAPaX3kM"
-
-        let res = await  axios.get(url)
-        this.locationDetail = res.data.results[0].formatted_address
 
 
+//<div class="col-md 3">
+//   <div class="d-flex justify-content-center"><button title="move back to center" id="center-button" style="position: absolute;z-index: 1;font-family: monospace;font-weight:bold " class="btn btn-light"  >CENTER</button></div>
 
 
 
@@ -328,7 +354,10 @@ http: HttpClient | any
 
         });
 
+        let url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + center.lat.toString() + "," + center.lng.toString() + "&key=AIzaSyA2zmfFiqBqvwBMOqEGlEzWqmSRAPaX3kM"
 
+        let res = await axios.get(url)
+        this.locationDetail = res.data.results[0].formatted_address
 
 
 
@@ -345,6 +374,11 @@ http: HttpClient | any
 
         })
 
+        google.maps.event.addListener(zone_area, "click", async () => {
+          info.open(this.map);
+
+        });
+
         google.maps.event.addDomListener(document.getElementById("selectLang") as HTMLElement, "change", async () => {
           info.setContent("<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
@@ -354,9 +388,7 @@ http: HttpClient | any
         })
 
 
-        google.maps.event.addListener(zone_area, "click", () => {
-          info.open(this.map);
-        });
+
 
 
         zone_area.setMap(this.map);
@@ -425,6 +457,7 @@ http: HttpClient | any
       this.locationDetail = ""
 
       //
+
     }
     //create Center-button
     google.maps.event.addDomListener(document.getElementById("center-button") as HTMLElement,"click", ()=>{
@@ -436,6 +469,17 @@ http: HttpClient | any
     //find your location button
 
     //end
+
+    //Create Legend table
+
+    //end
+
+
+
+
+
+
+    //
 
 
 

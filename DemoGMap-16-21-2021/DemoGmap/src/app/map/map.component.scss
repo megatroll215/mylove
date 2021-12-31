@@ -1,19 +1,39 @@
 
 .my-map{
-  width: 1350px;
+  width: 600px;
   height: 600px;
   border: 1px;
   border-radius: 15px;
-  margin: auto;
+
 }
+
 b{
+  text-align: center;
   font-family: Calibri;
   font-size: 14px;
   color: #e60000;
 }
 button{
-  width: 130px;
+  text-align: center;
+  font-size: 12px;
+  width: 80px;
   border: 1px transparent;
   margin: 2px;
 }
+
+ #legend {
+   font-family: Arial, sans-serif;
+   background: #fff;
+   padding: 10px;
+   margin: 10px;
+   border: 3px solid #000;
+ }
+
+ #selectLang{
+   float: right;
+   border: 2px outset sandybrown ;
+   border-radius: 15px;
+   width: 80px;
+   height: 50px;
+ }
 

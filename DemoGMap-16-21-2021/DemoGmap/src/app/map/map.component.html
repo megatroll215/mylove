@@ -1,19 +1,26 @@
-<div class="d-flex justify-content-center"><button title="move back to center" id="center-button" style="position: absolute;z-index: 1;font-family: monospace;font-weight:bold " class="btn btn-light"  >CENTER</button></div>
+<div class="container" >
+<div class = "row">
+  <div id="holder" class = "col-md-3">
+
+  </div>
+  <div class="col-md-6">
+<div  class="my-map border border-warning rounded" id="map" ></div>
+  <div>
+    <button translate="ZONE-INFO.layer" id="layer1_show" class="btn btn-danger" ><span>1</span></button>
+    <button translate="ZONE-INFO.layer" id="layer2_show" class="btn btn-warning"><span>2</span></button>
+    <button translate="ZONE-INFO.layer" id="layer3_show" class="btn btn-primary"><span>3</span></button>
+    <button translate="ZONE-INFO.All" id="All_layer_show" class="btn btn-light"></button>
+    <button translate="ZONE-INFO.Hide" id="All_layer_hidden" class="btn btn-dark" ></button>
+    <select  id="selectLang" style="width:100px;height: 40px"  #selLang (change)="TranslateTo(selLang.value)">
+      <option disabled selected >Language </option>
+      <option *ngFor="let language of this.translate.getLangs()" [value]="language">{{ language=="en"?"English":"Vietnamese"}}</option></select>
+  </div>
+  </div>
+<div class="col-md-3"></div>
+
+</div>
 
 
-<div  class="my-map" id="map" ></div>
-<div id = "function-bar">
-  <button translate="ZONE-INFO.layer" id="layer1_show" class="btn btn-danger" ><span>1</span></button>
-  <button translate="ZONE-INFO.layer" id="layer2_show" class="btn btn-warning"><span>2</span></button>
-  <button translate="ZONE-INFO.layer" id="layer3_show" class="btn btn-primary"><span>3</span></button>
-  <button translate="ZONE-INFO.All" id="All_layer_show" class="btn btn-light"></button>
-  <button translate="ZONE-INFO.Hide" id="All_layer_hidden" class="btn btn-dark" ></button>
-
-   <div style="float: right"><select class="form-control" id="selectLang" style="float: right" #selLang (change)="TranslateTo(selLang.value)">
-  <option disabled selected >choose language </option>
-  <option *ngFor="let language of this.translate.getLangs()" [value]="language">{{ language=="en"?"English":"Vietnamese"}}</option>
-
-
-
+</div>
 
 
