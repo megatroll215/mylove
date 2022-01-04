@@ -144,7 +144,7 @@ export class MapComponent implements OnInit, Array {
 
 
 
-  CreateButton(btnName: string, btnTitle: string, btnTd: string, pos: google.maps.ControlPosition) {
+  CreateButton(btnName: string, btnTitle: string, btnTd: string, pos: google.maps.ControlPosition) : HTMLElement {
     const centerDiv = document.createElement("div") as HTMLElement
     centerDiv.className = "d-flex justify-content-center"
     const centerButton = document.createElement("button") as HTMLElement;
@@ -159,6 +159,7 @@ export class MapComponent implements OnInit, Array {
 
     centerDiv.appendChild(centerButton)
     this.map.controls[pos].push(centerDiv)
+    return centerButton
   }
 
   ColorIntensive(population: any, layer: number): string {
@@ -344,12 +345,14 @@ export class MapComponent implements OnInit, Array {
     //end
 
 //GPS-button
-    this.CreateButton("GPS", "your location", "btnGPS", google.maps.ControlPosition.RIGHT_CENTER);
-//end
+    const buttonGPS = this.CreateButton("GPS", "your location", "btnGPS", google.maps.ControlPosition.RIGHT_CENTER);
+
+    //end
 //GPS-button-event
-/*    (document.getElementById("btnGPS") as HTMLElement).addEventListener("click", () => {
+    buttonGPS.addEventListener("click", () => {
       // Try HTML5 geolocation.
       if (navigator.geolocation) {
+
         navigator.geolocation.getCurrentPosition(
           (position: GeolocationPosition) => {
             const pos = {
@@ -357,9 +360,23 @@ export class MapComponent implements OnInit, Array {
               lng: position.coords.longitude,
             };
 
-            this.infoWindow.setPosition(pos);
-            this.infoWindow.setContent("Location found.");
-            this.infoWindow.open(this.map);
+            const maker = new google.maps.Marker({
+              position: pos,
+              map: this.map,
+              title: "your location",
+              label: "YOU"
+
+
+
+            })
+            this.map.setZoom(12)
+
+            maker.addListener("click",()=>{
+              maker.setMap(null)
+              }
+
+            )
+
             this.map.setCenter(pos);
           },
           () => {
@@ -370,7 +387,7 @@ export class MapComponent implements OnInit, Array {
         // Browser doesn't support Geolocation
         this.handleLocationError(false, this.infoWindow, this.map.getCenter()!);
       }
-    });*/
+    });
 
 
 
@@ -406,18 +423,22 @@ export class MapComponent implements OnInit, Array {
           fillOpacity: 0.5,
           visible: false,
 
+          zIndex: data.zone[i].layer,
+          geodesic :  true
+
         });
 
         let url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + center.lat.toString() + "," + center.lng.toString() + "&key=AIzaSyA2zmfFiqBqvwBMOqEGlEzWqmSRAPaX3kM"
 
         let res = await axios.get(url)
-        this.locationDetail = res.data.results[0].formatted_address
+
+
 
 
         this.tempContent = "<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
           "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
           "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
-          "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" + this.locationDetail
+          "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" + res.data.results[0].formatted_address;
 
 
         const info = new google.maps.InfoWindow({
@@ -432,11 +453,17 @@ export class MapComponent implements OnInit, Array {
 
         });
 
-        google.maps.event.addDomListener(document.getElementById("selectLang") as HTMLElement, "change", async () => {
+
+
+
+
+        google.maps.event.addDomListener(document.getElementById("langChange") as HTMLElement, "change", async () => {
+          this.locationDetail = res.data.results[0].formatted_address;
           info.setContent("<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
-            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" + this.locationDetail)
+            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" + this.locationDetail);
+
 
         })
 
@@ -451,16 +478,20 @@ export class MapComponent implements OnInit, Array {
               this.poly[i].polygon.visible = true;
 
               this.poly[i].polygon.setMap(this.map)
+
+
             } else {
               this.poly[i].polygon.visible = false;
               this.poly[i].polygon.setMap(this.map)
             }
+
           }
           ;
           this.map.setCenter({lat: 21.029014, lng: 105.851083} as unknown as google.maps.LatLng)
         })
         google.maps.event.addDomListener(document.getElementById("layer2_show") as HTMLElement, "click", () => {
           for (let i = 0; i < this.poly.length; i++) {
+
             if (this.poly[i].layer == 2) {
               this.poly[i].polygon.visible = true;
 
@@ -469,6 +500,8 @@ export class MapComponent implements OnInit, Array {
               this.poly[i].polygon.visible = false;
               this.poly[i].polygon.setMap(this.map)
             }
+
+
           }
           ;
           this.map.setCenter({lat: 21.029014, lng: 105.851083} as unknown as google.maps.LatLng)

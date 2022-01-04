@@ -11,11 +11,12 @@
     <button translate="ZONE-INFO.layer" id="layer3_show" class="btn btn-primary"><span>3</span></button>
     <button translate="ZONE-INFO.All" id="All_layer_show" class="btn btn-light"></button>
     <button translate="ZONE-INFO.Hide" id="All_layer_hidden" class="btn btn-dark" ></button>
-    <select  id="selectLang" style="width:100px;height: 40px"  #selLang (change)="TranslateTo(selLang.value)">
-      <option disabled selected >Language </option>
+   <select  id="langChange" style="width:100px;height: 40px"  #selLang (change)="TranslateTo(selLang.value)">
+     <option disabled selected >Language </option>
       <option *ngFor="let language of this.translate.getLangs()" [value]="language">{{ language=="en"?"English":"Vietnamese"}}</option></select>
+
   </div>
-  </div>
+     </div>
 <div class="col-md-3"></div>
 
 </div>
