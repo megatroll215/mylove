@@ -5,7 +5,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {LocationService} from '../service/getReverseGeocodingservice'
 import {HttpClient} from "@angular/common/http";
 import axios from "axios";
-import ScaleControlStyle = google.maps.ScaleControlStyle;
+
 
 
 export interface Array {
@@ -41,6 +41,7 @@ export class Poly implements Area {
 
 
 export class MapComponent implements OnInit, Array {
+  gallPetersMapType : any
   infoWindow = new google.maps.InfoWindow
   locationService: LocationService | any
   http: HttpClient | any
@@ -134,8 +135,64 @@ export class MapComponent implements OnInit, Array {
     }
 
   }
+//gall-peters projection
+   initGallPeters() {
+    const GALL_PETERS_RANGE_X = 500;
+    const GALL_PETERS_RANGE_Y = 500;
 
 
+    // Fetch Gall-Peters tiles stored locally on our server.
+    this.gallPetersMapType = new google.maps.ImageMapType({
+      getTileUrl(coord ,zoom) {
+        const scale = 1 << zoom;
+  
+        // Wrap tiles horizontally.
+        const x = ((coord.x % scale) + scale) % scale;
+  
+        // Don't wrap tiles vertically.
+        const y = coord.y;
+  
+        if (y < 0 || y >= scale) return "";
+  
+        return (
+          "https://developers.google.com/maps/documentation/" +
+          "javascript/examples/full/images/gall-peters_" +
+          zoom +
+          "_" +
+          x +
+          "_" +
+          y +
+          ".png"
+        );
+      },
+      tileSize: new google.maps.Size(GALL_PETERS_RANGE_X, GALL_PETERS_RANGE_Y),
+      minZoom: 0,
+      maxZoom: 1,
+      name: "Gall-Peters",
+    });
+  
+    // Describe the Gall-Peters projection used by these tiles.
+    this.gallPetersMapType.projection = {
+      fromLatLngToPoint: function (latLng: { lat: number; lng: number; }) {
+        const latRadians = (latLng.lat * Math.PI) / 180;
+        return new google.maps.Point(
+          GALL_PETERS_RANGE_X * (0.5 + latLng.lng / 360),
+          GALL_PETERS_RANGE_Y * (0.5 - 0.5 * Math.sin(latRadians))
+        );
+      },
+      fromPointToLatLng: function (point: any, noWrap: any) {
+        const x = point.x / GALL_PETERS_RANGE_X;
+        const y = Math.max(0, Math.min(1, point.y / GALL_PETERS_RANGE_Y));
+  
+        return new google.maps.LatLng(
+          (Math.asin(1 - 2 * y) * 180) / Math.PI,
+          -180 + 360 * x,
+          noWrap
+        );
+      },
+    };
+  }
+  //end
   async TranslateTo(lang: string) {
     this.translate.use(lang)
 
@@ -212,18 +269,19 @@ export class MapComponent implements OnInit, Array {
       },
       mapTypeControl: true,
       mapTypeControlOptions: {
-        mapTypeIds: ["roadmap", "satellite", "hybrid", "terrain", "dark-mode"],
+        mapTypeIds: ["gallPeters","roadmap", "satellite", "hybrid", "terrain", "dark-mode"],
+        // mapTypeIds: [ "dark-mode","gallPeters"],
         style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
         position: google.maps.ControlPosition.LEFT_TOP
 
       },
       rotateControl: true,
-      scaleControlOptions: {
-
-      },
+      
 
 
     });
+    
+    //
 //end
     //Dark-Mode styled
     const darkMode = new google.maps.StyledMapType([
@@ -306,14 +364,32 @@ export class MapComponent implements OnInit, Array {
         stylers: [{color: "#17263c"}],
       },
     ], {name: "Night"})
-
+    this.initGallPeters()
+    console.log(this.gallPetersMapType)
+    this.map.mapTypes.set("gallPeters", this.gallPetersMapType);
     this.map.mapTypes.set("dark-mode", darkMode)
-    this.map.setMapTypeId("dark-mode")
+    
+    //end
+
+    //gall-Peters projection
+   
+  
+    // let gallPetersMapType;
+   
+   
+   
+   
+  
+  
+   
+
+    
+    
     //end
 
 
 //Legend
-    const LegendContainer = document.createElement("div") as HTMLElement
+   /* const LegendContainer = document.createElement("div") as HTMLElement
     LegendContainer.id = "lecon"
     LegendContainer.style.margin = "auto"
     LegendContainer.style.backgroundColor = "transparent";
@@ -338,14 +414,14 @@ export class MapComponent implements OnInit, Array {
     LegendContainer.appendChild(hr);
 
 
-    (document.getElementById("holder") as HTMLElement).append(LegendContainer)
-
+    (document.getElementById("holder") as HTMLElement).append(LegendContainer)*/
+//end: Legend
 //center-button
     this.CreateButton("Center", "move back to center", "btnCenter", google.maps.ControlPosition.TOP_CENTER)
     //end
 
 //GPS-button
-    const buttonGPS = this.CreateButton("GPS", "your location", "btnGPS", google.maps.ControlPosition.RIGHT_CENTER);
+    const buttonGPS = this.CreateButton("GPS", "your location", "btnGPS", google.maps.ControlPosition.TOP_CENTER);
 
     //end
 //GPS-button-event
@@ -356,8 +432,8 @@ export class MapComponent implements OnInit, Array {
         navigator.geolocation.getCurrentPosition(
           (position: GeolocationPosition) => {
             const pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
+              lat: <number>position.coords.latitude,
+              lng: <number>position.coords.longitude,
             };
 
             const maker = new google.maps.Marker({
@@ -458,11 +534,11 @@ export class MapComponent implements OnInit, Array {
 
 
         google.maps.event.addDomListener(document.getElementById("langChange") as HTMLElement, "change", async () => {
-          this.locationDetail = res.data.results[0].formatted_address;
+
           info.setContent("<b>" + await this.TranslateTool("ZONE-INFO.layer") + "</b>" + " : " + "<span>" + data.zone[i].layer + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.BIN-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].binCount + "</span>" + "</br>" +
             "<b>" + await this.TranslateTool("ZONE-INFO.MTD-COUNT") + "</b>" + " : " + "<span>" + data.zone[i].mtdCount + "</span>" + "</br>" +
-            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" + this.locationDetail);
+            "<b>" + await this.TranslateTool("ZONE-INFO.POPULATION") + "</b>" + " : " + "<span>" + pop + "</span></br>" +  res.data.results[0].formatted_address);
 
 
         })
@@ -538,7 +614,7 @@ export class MapComponent implements OnInit, Array {
             this.poly[i].polygon.setMap(this.map)
           }
           ;
-          this.map.setCenter({lat: 21.029014, lng: 105.851083} as unknown as google.maps.LatLng)
+
 
         })
 

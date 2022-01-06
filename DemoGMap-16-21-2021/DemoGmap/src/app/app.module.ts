@@ -9,6 +9,9 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HttpClient,HttpClientModule} from '@angular/common/http'
 import {Resolve} from "@angular/router";
 import {Observable} from "rxjs";
+import { HeaderComponent } from './header/header.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { FooterComponent } from './footer/footer.component';
 
 
 export function  httpTranslateLoaderFactory(http: HttpClient){
@@ -28,7 +31,10 @@ export class TranslationResolverService implements Resolve<any> {
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
+    HeaderComponent,
+    SidebarComponent,
+    FooterComponent
   ],
   imports: [
     HttpClientModule,

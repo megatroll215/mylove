@@ -17,25 +17,27 @@ b{
 }
 button{
   text-align: center;
-  font-size: 12px;
-  width: 80px;
+  font-size: 11px;
+  width: 78px;
   border: 1px transparent;
   margin: 2px;
 }
 
- #legend {
-   font-family: Arial, sans-serif;
-   background: #fff;
-   padding: 10px;
-   margin: 20px;
-   border: 3px solid #000;
- }
 
- #selectLang{
-   float: right;
-   border: 2px outset sandybrown ;
+
+ #langChange{
+   font-weight: bold;
+  float: right;
+   border: 2px outset transparent ;
    border-radius: 15px;
    width: 80px;
-   height: 50px;
+   height: 30px;
+   background: white;
+   font-size: 12px;
+ }
+
+ #holder{
+   padding-top: 10px;
+   padding-bottom: 10px;
  }
 
