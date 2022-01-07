@@ -41,7 +41,7 @@ export class Poly implements Area {
 
 
 export class MapComponent implements OnInit, Array {
-  gallPetersMapType : any
+  gallPetersMapType : google.maps.ImageMapType|any
   infoWindow = new google.maps.InfoWindow
   locationService: LocationService | any
   http: HttpClient | any
@@ -136,28 +136,38 @@ export class MapComponent implements OnInit, Array {
 
   }
 //gall-peters projection
-   initGallPeters() {
-    const GALL_PETERS_RANGE_X = 500;
-    const GALL_PETERS_RANGE_Y = 500;
+   initGallPeters( GALL_PETERS_RANGE_X: number, GALL_PETERS_RANGE_Y: number ) {
+    
 
 
     // Fetch Gall-Peters tiles stored locally on our server.
     this.gallPetersMapType = new google.maps.ImageMapType({
       getTileUrl(coord ,zoom) {
         const scale = 1 << zoom;
+        console.log(scale)
+        console.log(zoom)
+        console.log(coord)
+        console.log(<number><unknown>Math.PI.toFixed(3))
+        
   
         // Wrap tiles horizontally.
-        const x = ((coord.x % scale) + scale) % scale;
+        let x = ((coord.x % scale) + scale) % scale 
+        console.log(Number.isInteger(x)) 
+        
+        
   
         // Don't wrap tiles vertically.
-        const y = coord.y;
+        let y = coord.y
+        console.log(Number.isInteger(y));
+        
   
         if (y < 0 || y >= scale) return "";
   
+        
         return (
           "https://developers.google.com/maps/documentation/" +
           "javascript/examples/full/images/gall-peters_" +
-          zoom +
+          zoom+
           "_" +
           x +
           "_" +
@@ -167,30 +177,36 @@ export class MapComponent implements OnInit, Array {
       },
       tileSize: new google.maps.Size(GALL_PETERS_RANGE_X, GALL_PETERS_RANGE_Y),
       minZoom: 0,
-      maxZoom: 1,
+      maxZoom: 14,
       name: "Gall-Peters",
     });
-  
-    // Describe the Gall-Peters projection used by these tiles.
-    this.gallPetersMapType.projection = {
-      fromLatLngToPoint: function (latLng: { lat: number; lng: number; }) {
-        const latRadians = (latLng.lat * Math.PI) / 180;
-        return new google.maps.Point(
-          GALL_PETERS_RANGE_X * (0.5 + latLng.lng / 360),
-          GALL_PETERS_RANGE_Y * (0.5 - 0.5 * Math.sin(latRadians))
-        );
-      },
-      fromPointToLatLng: function (point: any, noWrap: any) {
-        const x = point.x / GALL_PETERS_RANGE_X;
-        const y = Math.max(0, Math.min(1, point.y / GALL_PETERS_RANGE_Y));
-  
-        return new google.maps.LatLng(
-          (Math.asin(1 - 2 * y) * 180) / Math.PI,
+  // Describe the Gall-Peters projection used by these tiles.
+  this.gallPetersMapType.projection = {
+    
+    fromLatLngToPoint: function (latLng: google.maps.LatLng) {
+      const latRadians = (latLng.lat() * <number><unknown>Math.PI.toFixed(2)) / 180;
+      return new google.maps.Point(
+        GALL_PETERS_RANGE_X * (0.5 + latLng.lng() / 360),
+        GALL_PETERS_RANGE_Y * (0.5 - 0.5 * <number><unknown>Math.sin(latRadians).toFixed(2))
+      );
+    },
+    
+    fromPointToLatLng: function (point: any, noWrap: any) {
+      const x = <number><unknown>(point.x / GALL_PETERS_RANGE_X).toFixed(2);
+      const y = Math.max(0, Math.min(1, <number><unknown>(point.y / GALL_PETERS_RANGE_Y).toFixed(2)));
+        let latlng = new google.maps.LatLng(
+          <number><unknown>((Math.asin(1 - 2 * y) * 180) / Math.PI).toFixed(2),
           -180 + 360 * x,
           noWrap
         );
-      },
-    };
+        console.log(latlng.lat)
+        
+      return  latlng
+    },
+
+    
+  };
+    
   }
   //end
   async TranslateTo(lang: string) {
@@ -275,7 +291,7 @@ export class MapComponent implements OnInit, Array {
         position: google.maps.ControlPosition.LEFT_TOP
 
       },
-      rotateControl: true,
+     
       
 
 
@@ -364,18 +380,26 @@ export class MapComponent implements OnInit, Array {
         stylers: [{color: "#17263c"}],
       },
     ], {name: "Night"})
-    this.initGallPeters()
-    console.log(this.gallPetersMapType)
-    this.map.mapTypes.set("gallPeters", this.gallPetersMapType);
+    
     this.map.mapTypes.set("dark-mode", darkMode)
     
     //end
 
     //gall-Peters projection
-   
+    this.initGallPeters(800,800)
+    console.log((this.gallPetersMapType))
+    this.map.mapTypes.set("gallPeters", this.gallPetersMapType);
   
-    // let gallPetersMapType;
-   
+
+    //test some city data
+    
+  
+    // end
+   //test show latlng on mouseover
+
+
+  
+  //end  
    
    
    
@@ -628,7 +652,7 @@ export class MapComponent implements OnInit, Array {
     }
     //create Center-button
     google.maps.event.addDomListener(document.getElementById("center-button") as HTMLElement, "click", () => {
-      this.map.setCenter(this.Hanoi);
+      this.map.setCenter(+this.Hanoi);
       this.map.setZoom(14.5);
     })
 
